@@ -1,5 +1,5 @@
 [package]
-name = "RayTracing"
+name = "ray_tracing"
 version = "0.1.0"
 authors = ["shoshin <shoshinprograms@gmail.com>"]
 edition = "2018"
