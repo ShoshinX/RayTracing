@@ -4,24 +4,19 @@ use std::ops;
 mod vec3;
 mod color;
 mod ray;
+mod hittable;
+mod sphere;
+mod hittable_list;
+mod rtweekend;
 
-fn hit_sphere(center: &vec3::point3, radius: f64, r: &ray::ray) -> bool{
-    let oc = r.origin() - *center;
-    let a  = vec3::dot_prod_vec3(r.direction(), r.direction());
-    let b  = 2.0 * vec3::dot_prod_vec3(oc, r.direction());
-    let c  = vec3::dot_prod_vec3(oc, oc) - radius * radius;
-    let discriminant = b*b - 4.0*a*c;
-    discriminant > 0.0
-}
-
-fn ray_color(r: &ray::ray) -> vec3::color{
-    if hit_sphere(&vec3::point3{e:[0.0,0.0,-1.0]}, 0.5, r){
-        vec3::color{e:[1.0,0.0,0.0]}
-    }else{
-        let unit_direction = vec3::unit_vector_vec3(r.direction());
-        let t = 0.5 * (unit_direction.y() + 1.0);
-        (1.0 - t) * vec3::color{e:[1.0,1.0,1.0]} + t*vec3::color{e:[0.5, 0.7, 1.0]}
+fn ray_color(r: &ray::ray, world: &hittable::hittable) -> vec3::color{
+    let mut rec = hittable::hit_record {p: vec3::point3{e:[0.0,0.0,0.0]}, normal:vec3::vec3{e:[0.0,0.0,0.0]}, t:0.0, front_face:false};
+    if world.hit(r,0.0,rtweekend::INFINITY, &mut rec) {
+        return 0.5 * (rec.normal + vec3::color {e:[1.0,1.0,1.0]})
     }
+    let unit_direction = vec3::unit_vector_vec3(r.direction());
+    let t = 0.5 * (unit_direction.y() + 1.0);
+    (1.0 - t) * vec3::color{e:[1.0,1.0,1.0]} + t*vec3::color{e:[0.5, 0.7, 1.0]}
 }
 
 fn main() {
@@ -29,6 +24,11 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WIDTH: i32 = 400;
     const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
+
+    // World
+    let mut world = hittable_list::hittable_list {objects: Vec::new()};
+    world.add(Box::new(sphere::sphere{center: vec3::point3 {e:[0.0,0.0,-1.0]}, radius: 0.5}));
+    world.add(Box::new(sphere::sphere{center: vec3::point3 {e:[0.0,-100.5,-1.0]}, radius: 100.0}));
 
     // Camera
     let viewport_height = 2.0;
@@ -48,8 +48,8 @@ fn main() {
         for i in 0..IMAGE_WIDTH {
             let u = i as f64 / (IMAGE_WIDTH-1) as f64;
             let v = j as f64 / (IMAGE_HEIGHT-1) as f64;
-            let r = ray::ray {orig: origin, dir: lower_left_corner + u * horizontal + v * vertical - origin};
-            let pixel_color = ray_color(&r);
+            let r = ray::ray {orig: origin, dir: lower_left_corner + u * horizontal + v * vertical};
+            let pixel_color = ray_color(&r, &world);
             color::write_color(pixel_color);
         }
     }
