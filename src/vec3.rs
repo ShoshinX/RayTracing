@@ -1,6 +1,8 @@
 // Question:What does this mean?
 use std::io::{self,Write};
 use std::ops;
+use rand::*;
+use crate::rtweekend::*;
 
 // What does derive do? Why must Copy and Clone be together?
 #[derive(Copy, Clone)]
@@ -16,6 +18,12 @@ impl vec3 {
     pub fn length(&self) -> f64 { self.length_squared().sqrt() }
     pub fn length_squared(&self) -> f64 {
             self[0]*self[0] + self[1]*self[1] + self[2]*self[2]
+    }
+    pub fn random() -> vec3 {
+        vec3{e:[random::<f64>(),random::<f64>(),random::<f64>()]}
+    }
+    pub fn random_min_max(min:f64, max: f64) -> vec3 {
+        vec3{e:[random_double(min,max), random_double(min, max), random_double(min,max)]}
     }
 }
 
@@ -112,3 +120,24 @@ pub fn unit_vector_vec3(v: vec3) -> vec3 {
     v / len
 }
 
+pub fn random_in_unit_sphere() -> vec3 {
+    let result = loop {
+        let p = vec3::random_min_max(-1.0,1.0);
+        if p.length_squared() >= 1.0 {continue;}
+        break p;
+    };
+    result
+}
+
+pub fn random_unit_vector() -> vec3 {
+    unit_vector_vec3(random_in_unit_sphere())
+}
+
+pub fn random_in_hemisphere(normal: &vec3) -> vec3 {
+    let in_unit_sphere = random_in_unit_sphere();
+    if dot_prod_vec3(in_unit_sphere, *normal) > 0.0 {
+        in_unit_sphere
+    } else {
+        -in_unit_sphere
+    }
+}
