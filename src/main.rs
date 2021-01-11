@@ -9,13 +9,18 @@ mod sphere;
 mod hittable_list;
 mod rtweekend;
 mod camera;
+mod material;
 
 fn ray_color(r: &ray::ray, world: &hittable::hittable, depth: i32) -> vec3::color{
-    let mut rec = hittable::hit_record {p: vec3::point3{e:[0.0,0.0,0.0]}, normal:vec3::vec3{e:[0.0,0.0,0.0]}, t:0.0, front_face:false};
+    let mut rec = hittable::hit_record {p: vec3::point3{e:[0.0,0.0,0.0]}, normal:vec3::vec3{e:[0.0,0.0,0.0]}, t:0.0, front_face:false, mat_ptr: std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.0,0.0,0.0]}})};
     if depth <= 0 { return vec3::color{e:[0.0,0.0,0.0]} }
     if world.hit(r,0.001,rtweekend::INFINITY, &mut rec) {
-        let target = rec.p + rec.normal + vec3::random_in_hemisphere(&rec.normal);
-        return 0.5 * ray_color(&ray::ray{orig:rec.p, dir: target - rec.p}, world, depth - 1)
+        let mut scattered = ray::ray {orig:vec3::point3{e:[0.0,0.0,0.0]},dir:vec3::vec3{e:[0.0,0.0,0.0]}};
+        let mut attenuation = vec3::color {e:[0.0,0.0,0.0]};
+        if rec.mat_ptr.scatter(r, &rec, &mut attenuation, &mut scattered) {
+            return attenuation * ray_color(&scattered, world, depth - 1);
+        }
+        return vec3::color {e:[0.0,0.0,0.0]};
     }
     let unit_direction = vec3::unit_vector_vec3(r.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
@@ -32,8 +37,16 @@ fn main() {
 
     // World
     let mut world = hittable_list::hittable_list {objects: Vec::new()};
-    world.add(Box::new(sphere::sphere{center: vec3::point3 {e:[0.0,0.0,-1.0]}, radius: 0.5}));
-    world.add(Box::new(sphere::sphere{center: vec3::point3 {e:[0.0,-100.5,-1.0]}, radius: 100.0}));
+    
+    let material_ground = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.8,0.8,0.8]}});
+    let material_center = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.7,0.3,0.3]}});
+    let material_left = std::rc::Rc::new(material::metal{albedo:vec3::color{e:[0.8,0.8,0.8]}, fuzz: 0.3});
+    let material_right = std::rc::Rc::new(material::metal{albedo:vec3::color{e:[0.8,0.6,0.2]}, fuzz: 1.0});
+
+    world.add(Box::new(sphere::sphere{center: vec3::point3{e:[0.0,-100.5,-1.0]}, radius:100.0, mat_ptr: material_ground.clone()}));
+    world.add(Box::new(sphere::sphere{center: vec3::point3{e:[0.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_center.clone()}));
+    world.add(Box::new(sphere::sphere{center: vec3::point3{e:[-1.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_left.clone()}));
+    world.add(Box::new(sphere::sphere{center: vec3::point3{e:[1.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_right.clone()}));
 
     // Camera
     let cam = camera::camera::new(); 

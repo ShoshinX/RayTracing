@@ -25,6 +25,10 @@ impl vec3 {
     pub fn random_min_max(min:f64, max: f64) -> vec3 {
         vec3{e:[random_double(min,max), random_double(min, max), random_double(min,max)]}
     }
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        (self.e[0].abs() < s) && (self.e[1].abs() < s) && (self.e[2].abs() < s)
+    }
 }
 
 impl ops::Neg for vec3 {
@@ -140,4 +144,8 @@ pub fn random_in_hemisphere(normal: &vec3) -> vec3 {
     } else {
         -in_unit_sphere
     }
+}
+
+pub fn reflect(v:&vec3, n: &vec3) -> vec3 {
+    *v - 2.0*dot_prod_vec3(*v,*n)*(*n)
 }

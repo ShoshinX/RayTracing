@@ -1,13 +1,16 @@
 
 use crate::vec3::*;
 use crate::ray::*;
+use crate::material::*;
+use std::rc::Rc;
 
-#[derive(Copy,Clone)]
+#[derive(Clone)]
 pub struct hit_record {
     pub p: point3,
     pub normal: vec3,
     pub t: f64,
     pub front_face: bool,
+    pub mat_ptr: Rc<material>,
 }
 
 // TODO: have a default() and new() for initialization
