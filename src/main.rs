@@ -38,14 +38,15 @@ fn main() {
     // World
     let mut world = hittable_list::hittable_list {objects: Vec::new()};
     
-    let material_ground = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.8,0.8,0.8]}});
-    let material_center = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.7,0.3,0.3]}});
-    let material_left = std::rc::Rc::new(material::metal{albedo:vec3::color{e:[0.8,0.8,0.8]}, fuzz: 0.3});
-    let material_right = std::rc::Rc::new(material::metal{albedo:vec3::color{e:[0.8,0.6,0.2]}, fuzz: 1.0});
+    let material_ground = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.8,0.8,0.0]}});
+    let material_center = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.1,0.2,0.5]}});
+    let material_left = std::rc::Rc::new(material::dielectric{ir:1.5});
+    let material_right = std::rc::Rc::new(material::metal{albedo:vec3::color{e:[0.8,0.6,0.2]}, fuzz: 0.0});
 
     world.add(Box::new(sphere::sphere{center: vec3::point3{e:[0.0,-100.5,-1.0]}, radius:100.0, mat_ptr: material_ground.clone()}));
     world.add(Box::new(sphere::sphere{center: vec3::point3{e:[0.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_center.clone()}));
     world.add(Box::new(sphere::sphere{center: vec3::point3{e:[-1.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_left.clone()}));
+    world.add(Box::new(sphere::sphere{center: vec3::point3{e:[-1.0,0.0,-1.0]}, radius:-0.4, mat_ptr: material_left.clone()}));
     world.add(Box::new(sphere::sphere{center: vec3::point3{e:[1.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_right.clone()}));
 
     // Camera
