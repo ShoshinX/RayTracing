@@ -51,8 +51,12 @@ fn main() {
     world.add(Box::new(sphere::sphere{center: vec3::point3{e:[1.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_right.clone()}));
 
     // Camera
-    //let cam = camera::camera::new(vec3::point3{e:[-2.0,2.0,1.0]},vec3::point3{e:[0.0,0.0,-1.0]},vec3::vec3{e:[0.0,1.0,0.0]},90.0, ASPECT_RATIO); 
-    let cam = camera::camera::new(vec3::point3{e:[-2.0,2.0,1.0]},vec3::point3{e:[0.0,0.0,-1.0]},vec3::vec3{e:[0.0,1.0,0.0]},20.0, ASPECT_RATIO); 
+    let lookfrom = vec3::point3{e:[3.0,3.0,2.0]};
+    let lookat = vec3::point3{e:[0.0,0.0,-1.0]};
+    let vup = vec3::vec3{e:[0.0,1.0,0.0]};
+    let dist_to_focus = (lookfrom - lookat).length(); 
+    let aperture = 2.0;
+    let cam = camera::camera::new(lookfrom,lookat,vup,20.0, ASPECT_RATIO, aperture, dist_to_focus); 
 
     // Render
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);

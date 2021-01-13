@@ -156,3 +156,15 @@ pub fn refract(uv: &vec3, n: &vec3, etai_over_etat: f64) -> vec3 {
     let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * *n;
     r_out_perp + r_out_parallel
 }
+
+pub fn random_in_unit_disk() -> vec3 {
+    while true {
+        let p = vec3 {e:[random_double(-1.0, 1.0), random_double(-1.0,1.0), 0.0]};
+        if p.length_squared() >= 1.0 {
+            continue;
+        } else {
+            return p;
+        }
+    }
+    vec3{e:[0.0,0.0,0.0]}
+}
