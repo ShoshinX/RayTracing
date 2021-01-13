@@ -36,6 +36,7 @@ fn main() {
     const MAX_DEPTH: i32 = 50;
 
     // World
+    let R = (rtweekend::PI/4.0).cos();
     let mut world = hittable_list::hittable_list {objects: Vec::new()};
     
     let material_ground = std::rc::Rc::new(material::lambertian{albedo:vec3::color{e:[0.8,0.8,0.0]}});
@@ -50,7 +51,8 @@ fn main() {
     world.add(Box::new(sphere::sphere{center: vec3::point3{e:[1.0,0.0,-1.0]}, radius:0.5, mat_ptr: material_right.clone()}));
 
     // Camera
-    let cam = camera::camera::new(); 
+    //let cam = camera::camera::new(vec3::point3{e:[-2.0,2.0,1.0]},vec3::point3{e:[0.0,0.0,-1.0]},vec3::vec3{e:[0.0,1.0,0.0]},90.0, ASPECT_RATIO); 
+    let cam = camera::camera::new(vec3::point3{e:[-2.0,2.0,1.0]},vec3::point3{e:[0.0,0.0,-1.0]},vec3::vec3{e:[0.0,1.0,0.0]},20.0, ASPECT_RATIO); 
 
     // Render
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
